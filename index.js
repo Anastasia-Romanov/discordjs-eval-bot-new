@@ -97,7 +97,7 @@ const helpers = {
   },
   install: (packageName, version) => {
     const name = version ? `${packageName}@${version}` : packageName;
-    return helpers.runCommand(`npm install ${name}`);
+    return helpers.runCommand(`pnpm install ${name}`);
   },
   runCommand: (command, options) => {
     const { exec, } = require('child_process');
