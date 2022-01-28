@@ -419,7 +419,9 @@ client.on('messageCreate', async (message) => {
         else {
           if (res.length > 2048) res = res.slice(0, 2038);
           embed = new Discord.MessageEmbed()
-            .setAuthor('Eval')
+            .setAuthor({
+              name: 'Eval',
+            })
             .setTitle('Output')
             .setDescription(
               `\`\`\`${tags.matches['no-ansi'] ? 'js' : 'ansi'}\n${res.replace(/```/g, '``\u200b`')}\n\`\`\``
@@ -431,7 +433,9 @@ client.on('messageCreate', async (message) => {
               }\n\`\`\``
             )
             .setColor('#303136')
-            .setFooter(`Executed in ${time}.`);
+            .setFooter({
+              text: `Executed in ${time}.`,
+            });
         }
 
         if (message._eval)
@@ -475,7 +479,9 @@ client.on('messageCreate', async (message) => {
             }\n\`\`\``
           )
           .setColor('#fe4753')
-          .setFooter(`Failed in ${time}.`);
+          .setFooter({
+            text: `Failed in ${time}.`,
+          });
 
         if (message._eval)
           return message.channel.messages
