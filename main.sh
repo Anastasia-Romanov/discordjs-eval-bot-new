@@ -11,5 +11,5 @@ while [ true ]; do
   # git fetch -q
   # git reset origin/master --hard -q
   #fi
-  node .
+  node --trace-warnings --trace-deprecation .
 done
