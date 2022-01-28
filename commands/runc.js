@@ -1,28 +1,83 @@
-module.exports = async (msg, args, helpers) => {
+const fs = require('fs').promises;
+const { spawn } = require('child_process');
+
+/**
+ * @param {string} process
+ * @param {string[]} args
+ * @returns {Promise<string>}
+ */
+function runCommand(process, args) {
+  const child = spawn(process, args);
+  return new Promise((resolve, reject) => {
+    let res = '';
+
+    child.stdout.on('data', (data) => {
+      res += data;
+    });
+
+    child.stderr.on('data', (data) => {
+      res += data;
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) resolve(res);
+      else reject(res);
+    });
+  });
+}
+
+module.exports = async (msg) => {
   let source = msg.content.slice(5);
-  if (source.startsWith('```c') && source.endsWith('```')) source = source.slice(4, -3).trim();
+  if (source.startsWith('```c') && source.endsWith('```'))
+    source = source.slice(4, -3).trim();
 
-  const fs = require('fs').promises;
-
-  await fs.writeFile('in.c', source);
+  await fs.writeFile('main.c', source);
   const reply = await msg.reply('Compiling & Running...');
-  const startTime = Date.now();
-  let compileTime = startTime;
-  let runTime = startTime;
-  let result,
-    fail = false;
 
+  let compileTime = null;
+  let runTime = null;
+  let compilerResult = null;
+  let result = null;
+  let fail = false;
+
+  const startTime = Date.now();
   try {
-    await helpers.runCommand('gcc in.c');
+    compilerResult = await runCommand('gcc', ['main.c']);
     compileTime = Date.now();
-    result = await helpers.runCommand('./a.out');
-  } catch (e) {
-    result = String(e);
+  } catch (res) {
     fail = true;
+    compilerResult = res;
+  } finally {
+    compileTime = Date.now();
   }
 
-  runTime = Date.now();
-  await reply.edit(`${fail ? 'Success' : 'Fail'}\nCompiled in ${compileTime - startTime}ms\nRan in ${runTime - startTime}ms\n\`\`\`${result.replaceAll('`', '​`')}\n\`\`\``);
-  await fs.unlink('in.c');
-  await fs.unlink('a.out');
+  if (!fail)
+    try {
+      result = await runCommand('./a.out', []);
+    } catch (res) {
+      fail = true;
+      result = res;
+    } finally {
+      runTime = Date.now();
+    }
+
+  const response = [
+    `${fail ? 'Fail' : 'Success'}`,
+    `Compiled in ${compileTime - startTime}ms`
+  ];
+
+  if (runTime) response.push(`Ran in ${runTime - compileTime}ms`);
+  if (compilerResult)
+    response.push(
+      '```c',
+      '// Warnings & Errors',
+      compilerResult.replaceAll('`', '​`'),
+      '```'
+    );
+
+  if (result) response.push('```', result.replaceAll('`', '​`'), '```');
+
+  await reply.edit(response.join('\n'));
+  await fs.unlink('main.c');
+  if (runTime) await fs.unlink('a.out');
 };
