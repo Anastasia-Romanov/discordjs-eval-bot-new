@@ -10,9 +10,18 @@ const fs = require('fs');
 const typescript = require('typescript');
 const babel = require('@babel/core');
 const co = require('./functions.js');
-const fastify = require('fastify')();
-fastify.get('/', (req, res) => res.send('OK'));
-fastify.listen(3000, '0.0.0.0', () => console.log('website is alive'));
+
+{
+  const { createServer } = require('http');
+
+  const server = createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('OK');
+  });
+
+  server.listen(3000, () => console.log('website is alive'));
+}
+
 // eslint-disable-next-line no-shadow-restricted-names
 const eval = global.eval;
 const ___ = {
