@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-require('./co.js');
 const Discord = require('discord.js');
 const builders = require('@discordjs/builders');
 const util = require('util'),
@@ -9,13 +8,14 @@ const Tagify = require('command-tags');
 const fs = require('fs');
 const typescript = require('typescript');
 const babel = require('@babel/core');
-const co = require('./functions.js');
+const co = require('./co.js');
+require('./functions.js');
 
 {
-  const { createServer } = require('http');
+  const { createServer, } = require('http');
 
   const server = createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.writeHead(200, { 'Content-Type': 'text/plain', });
     res.end('OK');
   });
 
