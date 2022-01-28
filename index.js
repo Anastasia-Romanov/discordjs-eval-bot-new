@@ -404,7 +404,7 @@ client.on('messageCreate', async (message) => {
             .setDescription(`**Executed in ${time}.**`)
             .addField(
               'Input',
-              `\`\`\`${tags.matches.ts ? 'ts' : 'js'}\n${toEval.replace(
+              `\`\`\`ts\n${toEval.replace(
                 /```/g,
                 '``\u200b`‎'
               )}\n\`\`\``
@@ -422,11 +422,11 @@ client.on('messageCreate', async (message) => {
             .setAuthor('Eval')
             .setTitle('Output')
             .setDescription(
-              `\`\`\`js\n${res.replace(/```/g, '``\u200b`')}\n\`\`\``
+              `\`\`\`${tags.matches['no-ansi'] ? 'js' : 'ansi'}\n${res.replace(/```/g, '``\u200b`')}\n\`\`\``
             )
             .addField(
               'Input',
-              `\`\`\`${tags.matches.ts ? 'ts' : 'js'}\n${
+              `\`\`\`ts\n${
                 toEval.replace(/```/g, '``\u200b`') || '\u200b'
               }\n\`\`\``
             )
