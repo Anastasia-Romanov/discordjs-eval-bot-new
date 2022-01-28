@@ -2,7 +2,7 @@
     deps = [
         pkgs.bashInteractive
         pkgs.vim
-        pkgs.nodejs-16_x
+        pkgs.nodejs-17_x
         pkgs.nodePackages.pnpm
         pkgs.nodePackages.eslint
     ];
