@@ -14,7 +14,6 @@
     "@discordjs/voice": "^0.7.5",
     "command-tags": "^1.1.6",
     "discord.js": "^13.1.0",
-    "fastify": "^3.27.0",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.1",
     "skia-canvas": "^0.9.25",
