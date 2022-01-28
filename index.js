@@ -1,17 +1,19 @@
-/* eslint-disable */
+/* eslint-disable no-unused-vars */
+require('./co.js');
 const Discord = require('discord.js');
 const builders = require('@discordjs/builders');
 const util = require('util'),
-  { inspect } = util;
+  { inspect, } = util;
 const fetch = require('node-fetch');
 const Tagify = require('command-tags');
 const fs = require('fs');
 const typescript = require('typescript');
 const babel = require('@babel/core');
-require('./functions.js');
+const co = require('./functions.js');
 const fastify = require('fastify')();
 fastify.get('/', (req, res) => res.send('OK'));
 fastify.listen(3000, '0.0.0.0', () => console.log('website is alive'));
+// eslint-disable-next-line no-shadow-restricted-names
 const eval = global.eval;
 const ___ = {
   tokenRegex: new RegExp(
@@ -34,78 +36,15 @@ const ___ = {
       str = babel.transformSync(`(async () => do {${str}})()`, {
         plugins: [
           '@babel/plugin-transform-typescript',
-          '@babel/plugin-proposal-do-expressions'
-        ]
+          '@babel/plugin-proposal-do-expressions',
+        ],
       }).code;
-    } catch {}
+    } catch {
+      // explicitly empty
+    }
     return str;
-  }
+  },
 };
-const co = (...components) => {
-  const comp = [];
-  if (!components.length) return comp;
-  if (
-    components.length === 1 &&
-    Array.isArray(components[0]) &&
-    Array.isArray(components[0][0])
-  )
-    components = components.flat();
-  if (!components.every(Array.isArray))
-    throw new Error('You must provide arrays which represent ActionRows.');
-  //const parseRow
-  for (const row of components) {
-    const actionRow = new Discord.MessageActionRow();
-    comp.push(actionRow);
-    // if (row.length) // nvm let discord do the validating
-    actionRow.addComponents(row);
-  }
-  return comp;
-};
-co.button = (style, label, value, disabled, emoji) => {
-  if (style && typeof style === 'object') return { type: 'BUTTON', ...style };
-  if (value === undefined && emoji === undefined)
-    [style, label, value] = ['PRIMARY', style, label]; // only provided two arguments - button("name", "value")
-  if (value && typeof value === 'object') value = JSON.stringify(value);
-  const d = { type: 'BUTTON', label, emoji, style, disabled };
-  if (style === 'LINK' || style === 5) d.url = value;
-  else d.customId = value;
-  return d;
-};
-co.emoji = (style, emoji, value, disabled) => {
-  if (
-    (typeof emoji === 'undefined' || typeof value === 'undefined') &&
-    typeof style !== 'object'
-  )
-    [style, emoji, value] = ['SECONDARY', style, emoji]; // one or two arguments
-  if (typeof value === 'undefined') value = emoji; // no value
-  return co.button(style, '', value, disabled, emoji);
-};
-co.select = (placeholder, customId, options, disabled) => {
-  if (placeholder && typeof placeholder === 'object')
-    return { type: 'SELECT_MENU', ...placeholder };
-  if (customId && typeof customId === 'object')
-    customId = JSON.stringify(customId);
-  return {
-    type: 'SELECT_MENU',
-    placeholder,
-    customId,
-    options: options?.options || options || [],
-    disabled: disabled ?? options === false,
-    minValues: options.minValues,
-    maxValues: options.maxValues
-  };
-};
-co.options = (options, { min, max } = {}) => ({
-  minValues: min,
-  maxValues: max,
-  options: options || []
-});
-co.option = (label, value, description, defaultSelected, emoji) => {
-  if (label && typeof label === 'object') return label;
-  if (value && typeof value === 'object') value = JSON.stringify(value);
-  return { label, value, description, default: defaultSelected, emoji };
-};
-Object.freeze(co);
 const helpers = {
   extend: (key, cb) => {
     let structure;
@@ -118,7 +57,7 @@ const helpers = {
       throw new Error('Unknown structure ' + key);
     }
     const descriptors = Object.getOwnPropertyDescriptors(structure.prototype);
-    const desc = { super: Object.getPrototypeOf(structure) };
+    const desc = { super: Object.getPrototypeOf(structure), };
     for (const key of Object.keys(descriptors))
       desc[key] = descriptors[key].get || descriptors[key].value;
     const value = cb(desc);
@@ -127,21 +66,21 @@ const helpers = {
       /** @type {object} */ static = {};
     for (let key of Object.keys(define)) {
       const obj = key.startsWith('static_') ? static : res;
-      const { value, get, set } = define[key];
+      const { value, get, set, } = define[key];
       if (key.startsWith('static_')) key = key.slice(7);
       if (value)
         obj[key] = {
           value: value,
           configurable: true,
           writable: true,
-          enumerable: typeof value !== 'function'
+          enumerable: typeof value !== 'function',
         };
       else if (get)
         obj[key] = {
           configurable: true,
           enumerable: false,
           get: get,
-          set: set
+          set: set,
         };
     }
     Object.defineProperties(structure.prototype, res);
@@ -152,7 +91,7 @@ const helpers = {
     return helpers.runCommand(`npm install ${name}`);
   },
   runCommand: (command, options) => {
-    const { exec } = require('child_process');
+    const { exec, } = require('child_process');
     return new Promise((resolve, rej) => {
       exec(
         command,
@@ -190,16 +129,16 @@ const helpers = {
     fs.unlinkSync(`./commands/${name}.js`);
     return true;
   },
-  co
+  co,
 };
 Object.freeze(helpers);
 
-helpers.extend('GuildChannel', ({ delete: del }) => ({
+helpers.extend('GuildChannel', ({ delete: del, }) => ({
   async delete() {
     return this instanceof Discord.TextChannel
       ? this
       : del.apply(this, arguments);
-  }
+  },
 }));
 helpers.extend('TextChannel', () => ({
   // start typing for x * 9 seconds
@@ -222,7 +161,7 @@ helpers.extend('TextChannel', () => ({
           this.client.user._typing.delete(this.id);
           throw error;
         });
-      }, 9000)
+      }, 9000),
     };
 
     this.client.user._typing.set(this.id, entry);
@@ -234,19 +173,21 @@ helpers.extend('TextChannel', () => ({
         this.client.user._typing.delete(this.id);
         throw error;
       });
-  }
+  },
 }));
 
-helpers.extend('Client', ({}) => ({
+helpers.extend('Client', () => ({
   get faketoken() {
     return 'password123';
   },
   set faketoken(val = 'password123') {
     Object.defineProperty(this, 'faketoken', {
       get: () => val,
-      set: (v) => (val = v)
+      set: (v) => {
+        val = v;
+      },
     });
-  }
+  },
 }));
 
 const client = new Discord.Client({
@@ -264,9 +205,11 @@ const client = new Discord.Client({
     'GUILD_MESSAGE_TYPING',
     'DIRECT_MESSAGES',
     'DIRECT_MESSAGE_REACTIONS',
-    'DIRECT_MESSAGE_TYPING'
+    'DIRECT_MESSAGE_TYPING',
   ],
-  rejectOnRateLimit: ['/']
+  rejectOnRateLimit: [
+    '/',
+  ],
 });
 
 let prefix = '';
@@ -286,24 +229,27 @@ client.on('ready', async () => {
       console.log('destoryio');
       clD.call(this);
       process.exit();
-    }
+    },
   });
   Object.defineProperty(client.ws, 'destroy', {
     value: function destroy() {
       console.log('destoryio');
       wsD.call(this);
       process.exit();
-    }
+    },
   });
 });
 
 client.on('messageCreate', async (message) => {
   if (typeof prefix !== 'string') prefix = '';
   if (!message.content.startsWith(prefix)) return;
-  let [cmd, ...args] = message.content.slice(prefix.length).trim().split(/ +/);
+  let [
+    cmd,
+    ...args
+  ] = message.content.slice(prefix.length).trim().split(/ +/);
   if (cmd === 'refresh')
-    await message.channel.send("wtf bro? ugh whatever, i'll be back ig"),
-      process.exit();
+    await message.channel.send('wtf bro? ugh whatever, i\'ll be back ig'),
+    process.exit();
 
   if (cmd !== 'eval') {
     if (!cmd.match(/^[\w-]+$/) || !fs.existsSync(`./commands/${cmd}.js`))
@@ -319,7 +265,7 @@ client.on('messageCreate', async (message) => {
     {
       prefix: '(--|// ?)',
       negativeNumbers: true,
-      string: ` ${args.join(' ')}`
+      string: ` ${args.join(' ')}`,
     },
     [
       'async', // wrap eval in an async function
@@ -340,8 +286,8 @@ client.on('messageCreate', async (message) => {
         require: Array, // --require ["Message"] -> Message.xyz // shortcut for Discord.Message
         '(max(Array|String)|break)Length': Number,
         compact: /(true|false|\d+)/, // can be a boolean or a number
-        reduce: String // --reduce number -> [1, 2, 3] // 6
-      }
+        reduce: String, // --reduce number -> [1, 2, 3] // 6
+      },
     ]
   );
   tags.string = tags.newString;
@@ -354,7 +300,7 @@ client.on('messageCreate', async (message) => {
   {
     const normalise = ___.normalise;
     const testCo = (ck) =>
-      message.channel.send({ content: '\u200b', components: co(ck) });
+      message.channel.send({ content: '\u200b', components: co(ck), });
     let toEval = tags.string;
     console.log(
       message.author.username,
@@ -379,7 +325,7 @@ client.on('messageCreate', async (message) => {
     }
     if (!toEval)
       return message.channel.send(
-        "I can't evaluate your thoughts, come on. Specify something."
+        'I can\'t evaluate your thoughts, come on. Specify something.'
       ); // legacy :)
 
     if (tags.matches.require)
@@ -390,7 +336,11 @@ client.on('messageCreate', async (message) => {
       tags.matches.type &&
       message.channel
         .permissionsFor(client.user)
-        ?.has(['SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'VIEW_CHANNEL'])
+        ?.has([
+          'SEND_MESSAGES',
+          'READ_MESSAGE_HISTORY',
+          'VIEW_CHANNEL',
+        ])
     )
       await message.channel.startTyping(0);
     let t = process.hrtime();
@@ -431,10 +381,10 @@ client.on('messageCreate', async (message) => {
           toEval.includes('.toString()') && typeof res === 'string'
             ? res
             : inspect(res, {
-                depth: 0,
-                colors: !tags.matches['no-ansi'],
-                ...tags.matches
-              });
+              depth: 0,
+              colors: !tags.matches['no-ansi'],
+              ...tags.matches,
+            });
         console.log('eval result:', res);
         res = res.replace(___.tokenRegex, 'password123');
         let embed;
@@ -477,12 +427,16 @@ client.on('messageCreate', async (message) => {
 
         if (message._eval)
           return message.channel.messages
-            .edit(message._eval, { embeds: [embed] })
+            .edit(message._eval, { embeds: [
+              embed,
+            ], })
             .catch((e) => {
               delete message._eval;
               throw e;
             });
-        else return message.channel.send({ embeds: [embed] });
+        else return message.channel.send({ embeds: [
+          embed,
+        ], });
       })
       .catch((e) => {
         if (tags.matches.silent) return;
@@ -495,7 +449,7 @@ client.on('messageCreate', async (message) => {
         if (toEval.length > 1014) toEval = '...';
         const embed = new Discord.MessageEmbed()
           .setTitle('Eval')
-          .setDescription(`**ERROR**`)
+          .setDescription('**ERROR**')
           .addField(
             'Input',
             `\`\`\`${tags.matches.ts ? 'ts' : 'js'}\n${toEval.replace(
@@ -516,12 +470,16 @@ client.on('messageCreate', async (message) => {
 
         if (message._eval)
           return message.channel.messages
-            .edit(message._eval, { embeds: [embed] })
+            .edit(message._eval, { embeds: [
+              embed,
+            ], })
             .catch((e) => {
               delete message._eval;
               throw e;
             });
-        else return message.channel.send({ embeds: [embed] });
+        else return message.channel.send({ embeds: [
+          embed,
+        ], });
       })
       .then((msg) => (msg ? (message._eval = msg.id) : msg));
   }
@@ -535,4 +493,4 @@ client.on('messageUpdate', async (old, current) => {
 
 client.login();
 
-process.env = { PATH: process.env.PATH };
+process.env = { PATH: process.env.PATH, };
