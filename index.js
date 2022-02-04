@@ -2,7 +2,7 @@
 const Discord = require('discord.js');
 const builders = require('@discordjs/builders');
 const util = require('util'),
-  { inspect, } = util;
+  { inspect } = util;
 const fetch = require('node-fetch');
 const Tagify = require('command-tags');
 const fs = require('fs');
@@ -12,10 +12,10 @@ const co = require('./co.js');
 require('./functions.js');
 
 {
-  const { createServer, } = require('http');
+  const { createServer } = require('http');
 
   const server = createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain', });
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('OK');
   });
 
@@ -45,14 +45,14 @@ const ___ = {
       str = babel.transformSync(`(async () => do {${str}})()`, {
         plugins: [
           '@babel/plugin-transform-typescript',
-          '@babel/plugin-proposal-do-expressions',
-        ],
+          '@babel/plugin-proposal-do-expressions'
+        ]
       }).code;
     } catch {
       // explicitly empty
     }
     return str;
-  },
+  }
 };
 const helpers = {
   extend: (key, cb) => {
@@ -66,7 +66,7 @@ const helpers = {
       throw new Error('Unknown structure ' + key);
     }
     const descriptors = Object.getOwnPropertyDescriptors(structure.prototype);
-    const desc = { super: Object.getPrototypeOf(structure), };
+    const desc = { super: Object.getPrototypeOf(structure) };
     for (const key of Object.keys(descriptors))
       desc[key] = descriptors[key].get || descriptors[key].value;
     const value = cb(desc);
@@ -75,21 +75,21 @@ const helpers = {
       /** @type {object} */ static = {};
     for (let key of Object.keys(define)) {
       const obj = key.startsWith('static_') ? static : res;
-      const { value, get, set, } = define[key];
+      const { value, get, set } = define[key];
       if (key.startsWith('static_')) key = key.slice(7);
       if (value)
         obj[key] = {
           value: value,
           configurable: true,
           writable: true,
-          enumerable: typeof value !== 'function',
+          enumerable: typeof value !== 'function'
         };
       else if (get)
         obj[key] = {
           configurable: true,
           enumerable: false,
           get: get,
-          set: set,
+          set: set
         };
     }
     Object.defineProperties(structure.prototype, res);
@@ -100,7 +100,7 @@ const helpers = {
     return helpers.runCommand(`pnpm install ${name}`);
   },
   runCommand: (command, options) => {
-    const { exec, } = require('child_process');
+    const { exec } = require('child_process');
     return new Promise((resolve, rej) => {
       exec(
         command,
@@ -138,16 +138,16 @@ const helpers = {
     fs.unlinkSync(`./commands/${name}.js`);
     return true;
   },
-  co,
+  co
 };
 Object.freeze(helpers);
 
-helpers.extend('GuildChannel', ({ delete: del, }) => ({
+helpers.extend('GuildChannel', ({ delete: del }) => ({
   async delete() {
     return this instanceof Discord.TextChannel
       ? this
       : del.apply(this, arguments);
-  },
+  }
 }));
 helpers.extend('TextChannel', () => ({
   // start typing for x * 9 seconds
@@ -170,7 +170,7 @@ helpers.extend('TextChannel', () => ({
           this.client.user._typing.delete(this.id);
           throw error;
         });
-      }, 9000),
+      }, 9000)
     };
 
     this.client.user._typing.set(this.id, entry);
@@ -182,7 +182,7 @@ helpers.extend('TextChannel', () => ({
         this.client.user._typing.delete(this.id);
         throw error;
       });
-  },
+  }
 }));
 
 helpers.extend('Client', () => ({
@@ -194,9 +194,9 @@ helpers.extend('Client', () => ({
       get: () => val,
       set: (v) => {
         val = v;
-      },
+      }
     });
-  },
+  }
 }));
 
 const client = new Discord.Client({
@@ -214,11 +214,9 @@ const client = new Discord.Client({
     'GUILD_MESSAGE_TYPING',
     'DIRECT_MESSAGES',
     'DIRECT_MESSAGE_REACTIONS',
-    'DIRECT_MESSAGE_TYPING',
+    'DIRECT_MESSAGE_TYPING'
   ],
-  rejectOnRateLimit: [
-    '/',
-  ],
+  rejectOnRateLimit: ['/']
 });
 
 let prefix = '';
@@ -238,30 +236,27 @@ client.on('ready', async () => {
       console.log('destoryio');
       clD.call(this);
       process.exit();
-    },
+    }
   });
   Object.defineProperty(client.ws, 'destroy', {
     value: function destroy() {
       console.log('destoryio');
       wsD.call(this);
       process.exit();
-    },
+    }
   });
 });
 
 client.on('messageCreate', async (message) => {
   if (typeof prefix !== 'string') prefix = '';
   if (!message.content.startsWith(prefix)) return;
-  let [
-    cmd,
-    ...args
-  ] = message.content.slice(prefix.length).trim().split(/ +/);
+  let [cmd, ...args] = message.content.slice(prefix.length).trim().split(/ +/);
   if (cmd === 'refresh')
-    await message.channel.send('wtf bro? ugh whatever, i\'ll be back ig'),
-    process.exit();
+    await message.channel.send("wtf bro? ugh whatever, i'll be back ig"),
+      process.exit();
 
   if (cmd !== 'eval') {
-    if (!cmd.match(/^[\w-\$_]+$/) || !fs.existsSync(`./commands/${cmd}.js`))
+    if (!cmd.match(/^[\w-\$]+$/) || !fs.existsSync(`./commands/${cmd}.js`))
       return;
     try {
       return await require(`./commands/${cmd}`)(message, args, helpers);
@@ -274,7 +269,7 @@ client.on('messageCreate', async (message) => {
     {
       prefix: '(--|// ?)',
       negativeNumbers: true,
-      string: ` ${args.join(' ')}`,
+      string: ` ${args.join(' ')}`
     },
     [
       'async', // wrap eval in an async function
@@ -295,8 +290,8 @@ client.on('messageCreate', async (message) => {
         require: Array, // --require ["Message"] -> Message.xyz // shortcut for Discord.Message
         '(max(Array|String)|break)Length': Number,
         compact: /(true|false|\d+)/, // can be a boolean or a number
-        reduce: String, // --reduce number -> [1, 2, 3] // 6
-      },
+        reduce: String // --reduce number -> [1, 2, 3] // 6
+      }
     ]
   );
   tags.string = tags.newString;
@@ -309,7 +304,7 @@ client.on('messageCreate', async (message) => {
   {
     const normalise = ___.normalise;
     const testCo = (ck) =>
-      message.channel.send({ content: '\u200b', components: co(ck), });
+      message.channel.send({ content: '\u200b', components: co(ck) });
     let toEval = tags.string;
     console.log(
       message.author.username,
@@ -334,7 +329,7 @@ client.on('messageCreate', async (message) => {
     }
     if (!toEval)
       return message.channel.send(
-        'I can\'t evaluate your thoughts, come on. Specify something.'
+        "I can't evaluate your thoughts, come on. Specify something."
       ); // legacy :)
 
     if (tags.matches.require)
@@ -345,11 +340,7 @@ client.on('messageCreate', async (message) => {
       tags.matches.type &&
       message.channel
         .permissionsFor(client.user)
-        ?.has([
-          'SEND_MESSAGES',
-          'READ_MESSAGE_HISTORY',
-          'VIEW_CHANNEL',
-        ])
+        ?.has(['SEND_MESSAGES', 'READ_MESSAGE_HISTORY', 'VIEW_CHANNEL'])
     )
       await message.channel.startTyping(0);
     let t = process.hrtime();
@@ -390,10 +381,10 @@ client.on('messageCreate', async (message) => {
           toEval.includes('.toString()') && typeof res === 'string'
             ? res
             : inspect(res, {
-              depth: 0,
-              colors: !tags.matches['no-ansi'],
-              ...tags.matches,
-            });
+                depth: 0,
+                colors: !tags.matches['no-ansi'],
+                ...tags.matches
+              });
         console.log('eval result:', res);
         res = res.replace(___.tokenRegex, 'password123');
         let embed;
@@ -404,10 +395,7 @@ client.on('messageCreate', async (message) => {
             .setDescription(`**Executed in ${time}.**`)
             .addField(
               'Input',
-              `\`\`\`ts\n${toEval.replace(
-                /```/g,
-                '``\u200b`‎'
-              )}\n\`\`\``
+              `\`\`\`ts\n${toEval.replace(/```/g, '``\u200b`‎')}\n\`\`\``
             )
             .addField(
               'Output',
@@ -422,7 +410,10 @@ client.on('messageCreate', async (message) => {
             .setAuthor('Eval')
             .setTitle('Output')
             .setDescription(
-              `\`\`\`${tags.matches['no-ansi'] ? 'js' : 'ansi'}\n${res.replace(/```/g, '``\u200b`')}\n\`\`\``
+              `\`\`\`${tags.matches['no-ansi'] ? 'js' : 'ansi'}\n${res.replace(
+                /```/g,
+                '``\u200b`'
+              )}\n\`\`\``
             )
             .addField(
               'Input',
@@ -436,16 +427,12 @@ client.on('messageCreate', async (message) => {
 
         if (message._eval)
           return message.channel.messages
-            .edit(message._eval, { embeds: [
-              embed,
-            ], })
+            .edit(message._eval, { embeds: [embed] })
             .catch((e) => {
               delete message._eval;
               throw e;
             });
-        else return message.channel.send({ embeds: [
-          embed,
-        ], });
+        else return message.channel.send({ embeds: [embed] });
       })
       .catch((e) => {
         if (tags.matches.silent) return;
@@ -479,16 +466,12 @@ client.on('messageCreate', async (message) => {
 
         if (message._eval)
           return message.channel.messages
-            .edit(message._eval, { embeds: [
-              embed,
-            ], })
+            .edit(message._eval, { embeds: [embed] })
             .catch((e) => {
               delete message._eval;
               throw e;
             });
-        else return message.channel.send({ embeds: [
-          embed,
-        ], });
+        else return message.channel.send({ embeds: [embed] });
       })
       .then((msg) => (msg ? (message._eval = msg.id) : msg));
   }
@@ -502,4 +485,4 @@ client.on('messageUpdate', async (old, current) => {
 
 client.login();
 
-process.env = { PATH: process.env.PATH, };
+process.env = { PATH: process.env.PATH };
