@@ -261,7 +261,7 @@ client.on('messageCreate', async (message) => {
     process.exit();
 
   if (cmd !== 'eval') {
-    if (!cmd.match(/^[\w-]+$/) || !fs.existsSync(`./commands/${cmd}.js`))
+    if (!cmd.match(/^[\w-\$]+$/) || !fs.existsSync(`./commands/${cmd}.js`))
       return;
     try {
       return await require(`./commands/${cmd}`)(message, args, helpers);
