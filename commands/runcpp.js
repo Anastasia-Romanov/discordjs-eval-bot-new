@@ -38,6 +38,7 @@ module.exports = async (msg) => {
   const reply = msg[RESPONSE]
     ? await msg[RESPONSE].edit(compilingMessage)
     : await msg.reply(compilingMessage);
+  msg[RESPONSE] = reply;
 
   let compileTime = null;
   let runTime = null;
