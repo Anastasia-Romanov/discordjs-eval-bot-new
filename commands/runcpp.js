@@ -26,13 +26,18 @@ function runCommand(process, args) {
   });
 }
 
+const RESPONSE = Symbol('runcpp.response');
+
 module.exports = async (msg) => {
   let source = msg.content.slice(7);
   if (source.startsWith('```cpp') && source.endsWith('```'))
     source = source.slice(7, -3).trim();
 
   await fs.writeFile('main.cpp', source);
-  const reply = await msg.reply('Compiling & Running...');
+  const compilingMessage = 'Compiling & Running...';
+  const reply = reply[RESPONSE]
+    ? await msg.edit(compilingMessage)
+    : await msg.reply(compilingMessage);
 
   let compileTime = null;
   let runTime = null;
