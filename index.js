@@ -9,6 +9,8 @@ const fs = require('fs');
 const typescript = require('typescript');
 const babel = require('@babel/core');
 const co = require('./co.js');
+const child_process = require('child_process');
+
 require('./functions.js');
 
 {
@@ -20,6 +22,47 @@ require('./functions.js');
   });
 
   server.listen(3000, () => console.log('website is alive'));
+}
+
+function $(process, ...args) {
+  const child = child_process.spawn(process, args);
+  return new Promise((resolve, reject) => {
+    let res = '';
+
+    child.stdout.on('data', (data) => {
+      res += data;
+    });
+
+    child.stderr.on('data', (data) => {
+      res += data;
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) resolve(res);
+      else reject(res);
+    });
+  });
+}
+
+$.obj = function $obj(process, ...args) {
+  const child = child_process.spawn(process, args);
+  return new Promise((resolve, reject) => {
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', (data) => {
+      stdout += data;
+    });
+
+    child.stderr.on('data', (data) => {
+      stderr += data;
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) resolve({ stdout, stderr });
+      else reject({ stdout, stderr });
+    });
+  });
 }
 
 // eslint-disable-next-line no-shadow-restricted-names
