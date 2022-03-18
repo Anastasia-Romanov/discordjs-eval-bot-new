@@ -44,7 +44,7 @@ function $(process, ...args) {
   });
 }
 
-$.obj = function $obj(process, ...args) {
+Object.defineProperty($, 'obj', function(process, ...args) {
   const child = child_process.spawn(process, args);
   return new Promise((resolve, reject) => {
     let stdout = '';
@@ -63,7 +63,7 @@ $.obj = function $obj(process, ...args) {
       else reject({ stdout, stderr });
     });
   });
-}
+});
 
 // eslint-disable-next-line no-shadow-restricted-names
 const eval = global.eval;
