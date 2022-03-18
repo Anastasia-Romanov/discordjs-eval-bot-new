@@ -9,7 +9,7 @@ const fs = require('fs');
 const typescript = require('typescript');
 const babel = require('@babel/core');
 const co = require('./co.js');
-const child_process = require('child_process');
+const child_process = require('node:child_process');
 
 require('./functions.js');
 
