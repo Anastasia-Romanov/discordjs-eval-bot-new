@@ -549,6 +549,20 @@ client.on('messageUpdate', async (old, current) => {
   client.emit('messageCreate', current);
 });
 
-client.login();
+const login = () => {
+  return client.login()
+    .catch((err) => {
+      if (err instanceof Discord.RateLimitError) {
+        console.error('RateLimit hit while logging in', err);
+        setTimeout(() => {
+          login();
+        }, err.timeout * 1000);
+        return;
+      }
+    throw err;
+  });
+}
+
+login();
 
 process.env = { PATH: process.env.PATH, };
