@@ -1,4 +1,4 @@
 while [ true ]; do
   # we're trusting people not to blow up the filesystem here
-  node --trace-warnings --trace-deprecation .
+  pnpm ts-node --trace-warnings --trace-deprecation src/index.ts
 done
