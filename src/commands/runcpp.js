@@ -35,9 +35,10 @@ module.exports = async (msg) => {
 
   await fs.writeFile('main.cpp', source);
   const compilingMessage = 'Compiling & Running...';
-  const reply = reply[RESPONSE]
-    ? await msg.edit(compilingMessage)
+  const reply = msg[RESPONSE]
+    ? await msg[RESPONSE].edit(compilingMessage)
     : await msg.reply(compilingMessage);
+  msg[RESPONSE] = reply;
 
   let compileTime = null;
   let runTime = null;

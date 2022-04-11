@@ -9,6 +9,7 @@ import * as assert from 'node:assert';
 import { createServer } from 'node:http';
 import * as path from 'node:path';
 import { exit, hrtime } from 'node:process';
+import { setTimeout as sleep } from 'node:timers/promises';
 import * as util from 'node:util';
 import { compileEval, EvalFlags, prepareCompiler } from './compile';
 import * as helpers from './helpers';
@@ -290,4 +291,18 @@ const stop = () => {
 
 process.once('SIGINT', stop).once('SIGHUP', stop);
 
-void client.login();
+const login = (): Promise<void> => {
+  return client
+    .login()
+    .then(() => void 0)
+    .catch(async (err) => {
+      if (err instanceof Discord.RateLimitError) {
+        console.error('RateLimit hit while logging in', err);
+        await sleep(err.timeout);
+        return login();
+      }
+      throw err;
+    });
+};
+
+void login();
