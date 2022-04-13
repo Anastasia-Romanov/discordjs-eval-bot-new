@@ -3,7 +3,7 @@
 /// <reference path="./command-tags.d.ts" />
 
 import tagify from 'command-tags';
-import { source, stripIndent } from 'common-tags';
+import { source } from 'common-tags';
 import * as Discord from 'discord.js';
 import * as assert from 'node:assert';
 import { createServer } from 'node:http';
@@ -236,7 +236,7 @@ client.on('messageCreate', async (message) => {
         const embed = new Discord.MessageEmbed()
           .setTitle('Eval Help')
           .setDescription(
-            stripIndent`
+            source`
             **Running code**
             Discord.js Eval Bot+++ has many more features than its competitors.
             TypeScript support is **built-in**, as well as support for **ESM Imports**, **\`do\` expressions**, and **top-level async/await**.
@@ -258,8 +258,38 @@ client.on('messageCreate', async (message) => {
             });
             \`\`\`
 
-            **Creating commands**
-            <todo>
+            Code is executed using the eval command:
+            \`\`\`
+            eval import * as ...
+            \`\`\`You can optionally include it in a code block:
+            \`\`\`
+            ${source`
+              eval \`\`\`ts
+              import * as ...
+              \`\`\`
+            `.replaceAll('```', '``\u200B`')}
+            \`\`\`
+
+            **Custom commands**
+            You can create custom commands that are saved between restarts be using the \`helpers.registerCommand\` function.
+
+            \`\`\`ts
+            helpers.registerCommand(
+              'my-command',
+              async (msg: Discord.Message, args: string[], helpers: typeof helpers) => {
+
+              }
+            );
+            \`\`\`
+
+            **Flags**
+            --silent prevents the bot from responding
+            --wait wraps your eval in a promise
+            --no-ansi uses discord's built in highlighting
+            --stack displays the stack of errors
+            --compact makes eval results smaller
+
+            > if you screw up the bot, the \`refresh\` command might fix it
           `
           )
           .setColor(0x334433);
