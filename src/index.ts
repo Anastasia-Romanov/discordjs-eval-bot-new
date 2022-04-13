@@ -298,12 +298,14 @@ client.on('messageCreate', async (message) => {
       }
 
       default: {
-        if (!(await helpers.fileExists(`./commands/${cmd}.js`))) return;
-        const handler = (await import(`./commands/${cmd}`)) as (
-          message: Discord.Message,
-          args: string[],
-          helpers: typeof import('./helpers')
-        ) => void | Promise<void>;
+        if (!(await helpers.fileExists(`./src/commands/${cmd}.js`))) return;
+        const { default: handler } = (await import(`./commands/${cmd}`)) as {
+          default: (
+            message: Discord.Message,
+            args: string[],
+            helpers: typeof import('./helpers')
+          ) => void | Promise<void>;
+        };
 
         await handler(message, args, helpers);
         break;
