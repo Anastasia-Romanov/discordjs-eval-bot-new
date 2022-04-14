@@ -1,9 +1,0 @@
-{
-  "extends": "@pcordjs",
-  "rules": {
-    // somewhat broken
-    "no-restricted-imports": 0,
-    // we're not making a lib
-    "no-console": 0
-  }
-}
