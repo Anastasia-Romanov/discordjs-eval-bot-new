@@ -267,7 +267,10 @@ const client = new Discord.Client({
 let prefix = '';
 
 client.on('ready', async () => {
-  (await client.channels.fetch('795366538370088973')).send('hey guys');
+  try {
+    const _c = await client.channels.fetch('795366538370088973');
+    await _c.send('hey guys');
+  } catch {};
   console.log('logged in as', client.user.id);
   client.user._typing = new Map();
   // doinkythederp's 100% secure security block for stuff
