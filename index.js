@@ -6,7 +6,6 @@ const util = require('util'),
 const fetch = require('node-fetch');
 const Tagify = require('command-tags');
 const fs = require('fs');
-const typescript = require('typescript');
 const babel = require('@babel/core');
 const co = require('./co.js');
 const child_process = require('node:child_process');
@@ -16,7 +15,7 @@ require('./functions.js');
 {
   const { createServer, } = require('http');
 
-  const server = createServer((req, res) => {
+  const server = createServer((_req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain', });
     res.end('OK');
   });
@@ -59,8 +58,8 @@ Object.defineProperty($, 'obj', function(process, ...args) {
     });
 
     child.on('close', (code) => {
-      if (code === 0) resolve({ stdout, stderr });
-      else reject({ stdout, stderr });
+      if (code === 0) resolve({ stdout, stderr, });
+      else reject({ stdout, stderr, });
     });
   });
 });
@@ -267,10 +266,6 @@ const client = new Discord.Client({
 let prefix = '';
 
 client.on('ready', async () => {
-  try {
-    const _c = await client.channels.fetch('795366538370088973');
-    await _c.send('hey guys');
-  } catch {};
   console.log('logged in as', client.user.id);
   client.user._typing = new Map();
   // doinkythederp's 100% secure security block for stuff
@@ -302,9 +297,10 @@ client.on('messageCreate', async (message) => {
     cmd,
     ...args
   ] = message.content.slice(prefix.length).trim().split(/ +/);
-  if (cmd === 'refresh')
-    await message.channel.send('wtf bro? ugh whatever, i\'ll be back ig'),
+  if (cmd === 'refresh') {
+    await message.channel.send('wtf bro? ugh whatever, i\'ll be back ig');
     process.exit();
+  }
 
   if (cmd !== 'eval') {
     if (!cmd.match(/^[\w-\$]+$/) || !fs.existsSync(`./commands/${cmd}.js`))
@@ -354,8 +350,6 @@ client.on('messageCreate', async (message) => {
   tags.matched = oldMatches.length;
   {
     const normalise = ___.normalise;
-    const testCo = (ck) =>
-      message.channel.send({ content: '\u200b', components: co(ck), });
     let toEval = tags.string;
     console.log(
       message.author.username,
@@ -402,7 +396,6 @@ client.on('messageCreate', async (message) => {
     const promise = new Promise((resolve, reject) => {
       const normalised = normalise(toEval, tags.matches.ts);
       let d, ___, promise;
-      // let ___eval = str => eval(tags.matches.typescript ? typescript.transpile(str) : str)
       d = eval(normalised);
 
       if (!tags.matches.wait || !toEval.match(/resolve|reject/)) resolve(d);
@@ -559,13 +552,13 @@ const login = () => {
         console.error('RateLimit hit while logging in', err);
         setTimeout(() => {
           login();
-        }, err.timeout * 1000);
+        }, err.timeout * 1_000);
         return;
       }
-    throw err;
-  });
-}
+      throw err;
+    });
+};
 
 login();
 
-process.env = { PATH: process.env.PATH, };
+// process.env = { PATH: process.env.PATH, };

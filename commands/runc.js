@@ -1,5 +1,5 @@
 const fs = require('fs').promises;
-const { spawn } = require('child_process');
+const { spawn, } = require('child_process');
 
 /**
  * @param {string} process
@@ -48,7 +48,9 @@ module.exports = async (msg) => {
 
   const startTime = Date.now();
   try {
-    compilerResult = await runCommand('gcc', ['main.c']);
+    compilerResult = await runCommand('gcc', [
+      'main.c',
+    ]);
     compileTime = Date.now();
   } catch (res) {
     fail = true;
@@ -69,7 +71,7 @@ module.exports = async (msg) => {
 
   const response = [
     `${fail ? 'Fail' : 'Success'}`,
-    `Compiled in ${compileTime - startTime}ms`
+    `Compiled in ${compileTime - startTime}ms`,
   ];
 
   if (runTime) response.push(`Ran in ${runTime - compileTime}ms`);

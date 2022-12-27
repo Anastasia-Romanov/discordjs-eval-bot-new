@@ -41,7 +41,6 @@ Object.defineProperty(process.hrtime, 'format', {
 });
 
 const { words, } = require('lodash');
-const split = String.prototype.split, valueOf = String.prototype.valueOf, token = process.env.DISCORD_TOKEN;
 Object.defineProperties(String.prototype, {
   stripIndents: {
     value: function(tabSize) {
@@ -73,22 +72,6 @@ Object.defineProperties(String.prototype, {
     writable: true,
     configurable: true,
   },
-  // split: {
-  //   value: function split() {
-  //     // console.log("splitting " + this + new Error())
-  //     if (this.includes(token)) return split.apply(this.replaceAll(token, "password123"), arguments)
-  //     else return split.apply(this, arguments)
-  //   },
-  //   writable: true,
-  //   configurable: true
-  // },
-  // valueOf: {
-  //   value: function valueOf() {
-  //     return valueOf.apply(this.replaceAll(token, "password123"), arguments)
-  //   },
-  //   writable: true,
-  //   configurable: true
-  // }
 });
 
 Object.defineProperties(Promise.prototype, {
